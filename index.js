@@ -24,6 +24,7 @@ const createCommentAnnotation = async (instance, annotation) => {
     pageIndex: 0,
     // Set the text of the first comment
     text: { format: "plain", value: "New Annotation Comment" },
+    isAnonymous: true,
   });
   const commentAnnots = await instance.create([parentCom, firstCom]);
   // Add the comment id to the annotation customData
@@ -76,34 +77,31 @@ const {
 
 PSPDFKit.load({
   ui: {
-    [Interfaces.CommentThread]: ({ props }) => {
-      //console.log("Comment thread props", props);
-      // Set the comment reactions here
-      props.comments.forEach(
-        (obj) =>
-          (obj.reactions = [
-            {
-              id: "like",
-              "aria-label": "Like",
-              count: 2,
-              size: "md",
-            },
-            {
-              id: "dislike",
-              "aria-label": "Dislike",
-              count: 1,
-              size: "md",
-              icon: `m`
-            },
-          ])
-      );
-      return {
-        content: createBlock(Recipes.CommentThread, props, ({ ui }) => {
-          //console.log("Comment thread ui", ui);
-          return ui.createComponent();
-        }).createComponent(),
-      };
-    },
+    [Interfaces.CommentThread]: ({ props: props }) => ({
+      content: createBlock(Recipes.CommentThread, props, ({ ui: ui }) => {
+        const comment = ui.getBlockById("comment");
+        if (comment && comment.props) {
+          const { menuProps: menuProps } = comment.props;
+          menuProps &&
+            comment.setProp("menuProps", {
+              ...menuProps,
+              onAction: (id) => {
+                if("approve" === id){
+                  window.alert("Approved")
+                }
+                else if("reject" === id){
+                  window.alert("Rejected")
+                }
+                else{
+                  menuProps.onAction(id)
+                };
+              },
+              items: [...menuProps.items, { id: "approve", label: "Approve" }, { id: "reject", label: "Reject" }],
+            });
+        }
+        return ui.createComponent();
+      }).createComponent(),
+    }),
   },
   baseUrl,
   container: "#pspdfkit",

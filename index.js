@@ -24,7 +24,6 @@ const createCommentAnnotation = async (instance, annotation) => {
     pageIndex: 0,
     // Set the text of the first comment
     text: { format: "plain", value: "New Annotation Comment" },
-    isAnonymous: true,
   });
   const commentAnnots = await instance.create([parentCom, firstCom]);
   // Add the comment id to the annotation customData
@@ -71,6 +70,21 @@ const duplicateAnnotationTooltipCallback = (annotation) => {
   return [duplicateItem];
 };
 
+const setCommentColor = (ele, currStatus) => {
+  if(_instance && _instance.contentDocument){
+    const viewer = _instance.contentDocument;
+    const commentDiv = ele.current;
+    if(commentDiv){
+      if("approved" === currStatus){
+        commentDiv.style.backgroundColor = "lightgreen";
+      }
+      else if("rejected" === currStatus){
+        commentDiv.style.backgroundColor = "lightcoral";
+      }
+    }
+  }
+}
+
 const {
   UI: { createBlock, Recipes, Interfaces, Core },
 } = PSPDFKit;
@@ -87,10 +101,12 @@ PSPDFKit.load({
               ...menuProps,
               onAction: (id) => {
                 if("approve" === id){
-                  window.alert("Approved")
+                  setCommentColor(props.ref, "approved");
+                  window.alert(`Approved ${props.comments[0].id}`)
                 }
                 else if("reject" === id){
-                  window.alert("Rejected")
+                  setCommentColor(props.ref, "rejected");
+                  window.alert(`Rejected ${props.comments[0].id}`)
                 }
                 else{
                   menuProps.onAction(id)

@@ -72,7 +72,6 @@ const duplicateAnnotationTooltipCallback = (annotation) => {
 
 const setCommentColor = (ele, currStatus) => {
   if(_instance && _instance.contentDocument){
-    const viewer = _instance.contentDocument;
     const commentDiv = ele.current;
     if(commentDiv){
       if("approved" === currStatus){
@@ -108,10 +107,12 @@ PSPDFKit.load({
                   setCommentColor(props.ref, "rejected");
                   window.alert(`Rejected ${props.comments[0].id}`)
                 }
+                // Add more status as needed
                 else{
                   menuProps.onAction(id)
                 };
               },
+              // Also add status here
               items: [...menuProps.items, { id: "approve", label: "Approve" }, { id: "reject", label: "Reject" }],
             });
         }
